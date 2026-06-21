@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kryptos</title>
+  <link rel="stylesheet" href="/static/style.css">
+  <script src="/static/theme.js"></script>
+  <script src="/static/font-picker.js"></script>
+</head>
+<body>
+  <header class="topbar">
+    <h1>Kryptos</h1>
+    <span class="subtitle">信息不对称博弈</span>
+  </header>
+
+  <main class="layout">
+    <!-- 左：设置 + 群聊列表 -->
+    <aside class="panel left themed-scroll">
+      <div class="sidebar-actions">
+        <button type="button" class="btn-link" id="btn-open-settings">⚙ 设置</button>
+      </div>
+      <section class="sidebar-section" id="section-sessions">
+        <button type="button" class="sidebar-section-toggle" aria-expanded="true" aria-controls="section-sessions-body">
+          <span class="sidebar-section-chevron" aria-hidden="true">▶</span>
+          <span class="sidebar-section-title">群聊 / 会话</span>
+        </button>
+        <div class="sidebar-section-body" id="section-sessions-body">
+        <div class="row">
+          <input type="text" id="new-session-title" placeholder="新局标题" />
+          <button id="btn-create-session">新建</button>
+        </div>
+        <ul id="session-list" class="list sidebar-scroll-list"></ul>
+        <button type="button" id="btn-delete-session" class="ghost btn-danger full-width" disabled>删除当前群聊</button>
+        </div>
+      </section>
+      <section class="sidebar-section" id="section-session-chars">
+        <button type="button" class="sidebar-section-toggle" aria-expanded="true" aria-controls="section-session-chars-body">
+          <span class="sidebar-section-chevron" aria-hidden="true">▶</span>
+          <span class="sidebar-section-title">本群角色</span>
+        </button>
+        <div class="sidebar-section-body" id="section-session-chars-body">
+        <p class="section-hint">禁言、移出本群仅对本群生效；移出后本局私密/目标仍保留在关联记录中。</p>
+        <div id="session-mute-status" class="info-box session-mute-status hidden" role="status"></div>
+        <ul id="session-char-list" class="list session-char-list sidebar-scroll-list"></ul>
+        </div>
+      </section>
+      <section class="sidebar-section" id="section-world-book">
+        <button type="button" class="sidebar-section-toggle" aria-expanded="true" aria-controls="section-world-book-body">
+          <span class="sidebar-section-chevron" aria-hidden="true">▶</span>
+          <span class="sidebar-section-title">世界书</span>
+        </button>
+        <div class="sidebar-section-body" id="section-world-book-body">
+        <p class="section-hint">常驻或对话出现触发词时注入设定，减少跑偏与幻觉。修改词条后请点击「保存」。</p>
+        <div id="world-book-status" class="info-box session-mute-status hidden" role="status"></div>
+        <div class="world-book-meta">
+          <span id="world-book-active-count" class="world-book-active-count">当前注入 0 条</span>
+          <label class="world-book-scan-label">
+            扫描
+            <input type="number" id="world-book-scan-depth" min="5" max="120" value="40" />
+            条对话
+          </label>
+        </div>
+        <div class="world-book-actions row">
+          <button type="button" id="btn-add-world-entry" class="ghost">+ 添加词条</button>
+          <button type="button" id="btn-save-world-book">保存</button>
+        </div>
+        <p id="world-book-list-header" class="world-book-list-header">暂无词条</p>
+        <ul id="world-book-list" class="list world-book-list sidebar-scroll-list themed-scroll"></ul>
+        </div>
+      </section>
+      <section class="sidebar-section" id="section-auto-dialogue">
+        <button type="button" class="sidebar-section-toggle" aria-expanded="true" aria-controls="section-auto-dialogue-body">
+          <span class="sidebar-section-chevron" aria-hidden="true">▶</span>
+          <span class="sidebar-section-title">自动对话</span>
+        </button>
+        <div class="sidebar-section-body" id="section-auto-dialogue-body">
+        <div class="auto-dialogue-actions">
+          <button type="button" id="btn-start-auto-dialogue" class="ghost">开始</button>
+          <button type="button" id="btn-stop-auto-dialogue" class="ghost">暂停</button>
+          <button type="button" id="btn-save-auto-dialogue">保存设置</button>
+        </div>
+        <div id="auto-dialogue-status" class="info-box auto-status hidden"></div>
+        <p class="section-hint">多角色按间隔轮流发言；勾选后在你发言或点「开始」时触发。调整参数后请点击「保存设置」。</p>
+        <label class="checkbox-row">
+          <input type="checkbox" id="auto-dialogue-enabled" /> 发送后自动多角色对话
+        </label>
+        <label class="checkbox-row">
+          <input type="checkbox" id="auto-dialogue-continuous" /> 持续自动聊
+        </label>
+        <div class="auto-dialogue-grid">
+          <label class="field compact-field">
+            <span class="field-label">间隔（秒）</span>
+            <input type="number" id="auto-dialogue-interval" min="2" max="120" step="1" value="8" />
+          </label>
+          <label class="field compact-field">
+            <span class="field-label">每轮上限</span>
+            <input type="number" id="auto-dialogue-max-turns" min="1" max="30" step="1" value="6" />
+          </label>
+        </div>
+        <label class="checkbox-row">
+          <input type="checkbox" id="auto-dialogue-referee" /> 裁判参与
+        </label>
+        <label class="field compact-field">
+          <span class="field-label">选人方式</span>
+          <select id="auto-dialogue-mode">
+            <option value="rotate">轮流</option>
+            <option value="random">随机</option>
+          </select>
+        </label>
+        </div>
+      </section>
+    </aside>
+
+    <div class="layout-resizer" data-resizer="left" title="拖动调整左侧宽度" aria-label="调整左侧栏宽度"></div>
+
+    <!-- 中：时间线 + 底部输入 -->
+    <section class="panel center chat-panel">
+      <div class="view-bar">
+        <span>视角：</span>
+        <div id="view-tabs" class="tabs"></div>
+        <button id="btn-refresh" class="ghost">刷新</button>
+      </div>
+      <div class="chat-stage">
+        <div id="chat-empty-brand" class="chat-empty-brand" aria-hidden="false">
+          <p class="chat-empty-brand-title">Kryptos</p>
+          <p class="chat-empty-brand-sub">信息不对称博弈</p>
+        </div>
+        <div id="timeline" class="timeline themed-scroll"></div>
+      </div>
+      <div id="char-popover" class="char-popover hidden" role="dialog"></div>
+      <div class="composer">
+        <div id="composer-advanced" class="composer-advanced hidden">
+          <select id="msg-kind">
+            <option value="speech">发言</option>
+            <option value="whisper">低语</option>
+            <option value="narration">旁白</option>
+            <option value="clue">线索</option>
+            <option value="reveal">揭示</option>
+            <option value="action">行动</option>
+            <option value="state_change">状态变更</option>
+          </select>
+          <select id="msg-visibility">
+            <option value="public">公开</option>
+            <option value="restricted">私密</option>
+            <option value="system">系统</option>
+          </select>
+          <div id="viewers-box" class="viewers-box hidden">
+            <span class="inline-label">私密对象：</span>
+            <div id="viewers-checkboxes" class="viewers-inline"></div>
+          </div>
+        </div>
+        <div id="composer-private-hint" class="composer-private-hint hidden">
+          <span class="private-hint-icon">🔒</span>
+          正在与 <strong id="private-target-name">—</strong> 私密对话（仅你与对方可见；回复也保持私密）
+        </div>
+        <div class="composer-main">
+          <textarea id="msg-content" rows="3" placeholder="输入消息…（GM 发言）"></textarea>
+          <div class="composer-actions">
+            <button type="button" class="ghost" id="btn-toggle-advanced">高级</button>
+            <label class="checkbox-row inline">
+              <input type="checkbox" id="chk-reply-after-send" checked /> 发送后触发对话（单角色或下方自动多角色）
+            </label>
+            <button id="btn-send-msg">发送</button>
+          </div>
+        </div>
+        <p class="composer-hint">提示词在右侧角色配置：人设、说话风格、私密信息、目标</p>
+      </div>
+    </section>
+
+    <div class="layout-resizer" data-resizer="right" title="拖动调整右侧宽度" aria-label="调整右侧栏宽度"></div>
+
+    <!-- 右：角色列表 + 详细设置 -->
+    <aside class="panel right themed-scroll">
+      <section class="sidebar-section" id="section-roster">
+        <button type="button" class="sidebar-section-toggle" aria-expanded="true" aria-controls="section-roster-body">
+          <span class="sidebar-section-chevron" aria-hidden="true">▶</span>
+          <span class="sidebar-section-title">角色库</span>
+        </button>
+        <div class="sidebar-section-body" id="section-roster-body">
+        <p class="section-hint">角色全局共享，可加入多个群聊。私密信息按群聊单独保存。</p>
+        <div class="row">
+          <input type="text" id="new-char-name" placeholder="新角色名" />
+          <button id="btn-add-char">创建并加入本群</button>
+        </div>
+        <label class="checkbox-row">
+          <input type="checkbox" id="new-char-referee" /> 裁判角色
+        </label>
+        <ul id="char-list" class="list char-list sidebar-scroll-list"></ul>
+        </div>
+      </section>
+
+      <section class="sidebar-section" id="section-char-config">
+        <button type="button" class="sidebar-section-toggle" aria-expanded="true" aria-controls="section-char-config-body">
+          <span class="sidebar-section-chevron" aria-hidden="true">▶</span>
+          <span class="sidebar-section-title">角色配置</span>
+        </button>
+        <div class="sidebar-section-body" id="section-char-config-body">
+        <div id="char-config" class="info-box">从角色库选择角色</div>
+        <div id="char-form" class="hidden">
+          <div id="char-session-badge" class="info-box"></div>
+          <div class="row char-form-actions-top">
+            <button id="btn-join-char" class="ghost hidden">加入本群</button>
+            <button id="btn-speak-char" class="ghost">让此角色发言</button>
+          </div>
+          <label class="field">
+            <span class="field-label">名称</span>
+            <input id="cfg-name" type="text" />
+          </label>
+          <label class="field">
+            <span class="field-label">头像</span>
+            <div class="avatar-upload-block">
+              <div id="cfg-avatar-preview" class="avatar-preview avatar-preview--pick" role="button" tabindex="0" title="点击选择图片">
+                <span class="avatar-pick-hint">点击选择图片</span>
+              </div>
+              <div class="avatar-field-actions">
+                <input type="file" id="cfg-avatar-file" accept="image/jpeg,image/png,image/gif,image/webp,image/svg+xml,.jpg,.jpeg,.png,.gif,.webp,.svg" class="hidden" />
+                <button type="button" id="btn-avatar-upload" class="ghost">从文件夹选择</button>
+                <span class="avatar-upload-status" id="cfg-avatar-upload-status"></span>
+              </div>
+              <label class="field compact-field avatar-url-field">
+                <span class="field-label">或填写 URL / emoji</span>
+                <input id="cfg-avatar" type="text" placeholder="https://… 或 🐺" />
+              </label>
+            </div>
+          </label>
+          <div class="field bubble-style-block">
+            <span class="field-label">气泡颜色</span>
+            <div id="cfg-bubble-preview" class="bubble-preview"></div>
+            <div class="bubble-controls">
+              <div class="bubble-control-row">
+                <span class="dim">背景</span>
+                <label><input type="color" id="cfg-bubble-bg" value="#4ade80" /></label>
+                <input type="range" id="cfg-bubble-bg-alpha" min="0" max="100" value="10" />
+              </div>
+              <div class="bubble-control-row">
+                <span class="dim">边框</span>
+                <label><input type="color" id="cfg-bubble-border" value="#4ade80" /></label>
+                <input type="range" id="cfg-bubble-border-alpha" min="0" max="100" value="35" />
+              </div>
+            </div>
+          </div>
+          <label class="field">
+            <span class="field-label">人设</span>
+            <textarea id="cfg-persona" rows="3" placeholder="身份、性格、背景（你是谁）"></textarea>
+          </label>
+          <label class="field">
+            <span class="field-label">说话风格</span>
+            <textarea id="cfg-speech-style" rows="3" placeholder="口吻、用词、节奏、欺骗倾向（你怎么说）"></textarea>
+          </label>
+          <label class="field">
+            <span class="field-label">本局私密信息</span>
+            <textarea id="cfg-hidden" rows="2" placeholder="仅在本群生效的秘密"></textarea>
+          </label>
+          <label class="field">
+            <span class="field-label">本局目标</span>
+            <textarea id="cfg-goals" rows="2" placeholder="仅在本群生效的目标"></textarea>
+          </label>
+          <label class="field">
+            <span class="field-label">Model</span>
+            <input id="cfg-model" type="text" placeholder="留空用全局默认" />
+          </label>
+          <label class="field">
+            <span class="field-label">API Base</span>
+            <input id="cfg-api-base" type="text" placeholder="留空用全局默认" />
+          </label>
+          <label class="field">
+            <span class="field-label">API Key</span>
+            <input id="cfg-api-key" type="password" placeholder="留空用全局默认" />
+          </label>
+          <fieldset class="fieldset-skills">
+            <legend>角色深化（叙事增强）</legend>
+            <label class="checkbox-row" title="角色情绪随对话变化，影响说话语气">
+              <input type="checkbox" id="cfg-emotion-enabled" checked /> 情绪系统
+            </label>
+            <label class="checkbox-row" title="发言前先内心思考，心理活动丰富人物层次">
+              <input type="checkbox" id="cfg-internal-monologue" /> 内心独白
+            </label>
+            <label class="checkbox-row" title="角色间的好感与信任度逐步积累">
+              <input type="checkbox" id="cfg-relationship-enabled" checked /> 关系亲密度
+            </label>
+          </fieldset>
+          <fieldset class="fieldset-skills">
+            <legend>设定约束</legend>
+            <label class="checkbox-row" title="严格基于对话历史，不编造设定，适合跑团式场景">
+              <input type="radio" name="cfg-grounding" id="cfg-grounding-grounded" value="grounded" />
+              约束模式 — 只关注眼前事实，不编造设定
+            </label>
+            <label class="checkbox-row" title="允许合理发挥，补充细节">
+              <input type="radio" name="cfg-grounding" id="cfg-grounding-free" value="free" checked />
+              自由模式 — 可合理发挥
+            </label>
+          </fieldset>
+          <p id="char-save-reminder" class="save-reminder">修改后请点击下方「保存」，否则切换角色或刷新页面会丢失。</p>
+          <div class="row char-form-actions-bottom">
+            <button id="btn-save-char">保存</button>
+            <button id="btn-delete-char" class="ghost btn-danger hidden">从角色库删除</button>
+          </div>
+        </div>
+        </div>
+      </section>
+
+      <section class="sidebar-section" id="section-gm-bubble">
+        <button type="button" class="sidebar-section-toggle" aria-expanded="true" aria-controls="section-gm-bubble-body">
+          <span class="sidebar-section-chevron" aria-hidden="true">▶</span>
+          <span class="sidebar-section-title">GM 气泡样式</span>
+        </button>
+        <div class="sidebar-section-body" id="section-gm-bubble-body">
+        <p class="section-hint">自定义你（GM）发言的气泡颜色，保存在本机。改完颜色后请点击「保存 GM 气泡」。</p>
+        <div id="gm-bubble-preview" class="bubble-preview"></div>
+        <div class="bubble-controls">
+          <div class="bubble-control-row">
+            <span class="dim">背景</span>
+            <label><input type="color" id="gm-bubble-bg" value="#6c9eff" /></label>
+            <input type="range" id="gm-bubble-bg-alpha" min="0" max="100" value="18" />
+          </div>
+          <div class="bubble-control-row">
+            <span class="dim">边框</span>
+            <label><input type="color" id="gm-bubble-border" value="#6c9eff" /></label>
+            <input type="range" id="gm-bubble-border-alpha" min="0" max="100" value="45" />
+          </div>
+        </div>
+        <button type="button" id="btn-save-gm-bubble" class="ghost full-width">保存 GM 气泡</button>
+        </div>
+      </section>
+
+      <section class="sidebar-section sidebar-section--tail" id="section-context">
+        <button type="button" class="sidebar-section-toggle" aria-expanded="true" aria-controls="section-context-body">
+          <span class="sidebar-section-chevron" aria-hidden="true">▶</span>
+          <span class="sidebar-section-title">Context 预览</span>
+        </button>
+        <div class="sidebar-section-body" id="section-context-body">
+        <button id="btn-preview-context" class="ghost">预览当前视角</button>
+        <pre id="context-preview" class="code-block themed-scroll"></pre>
+        </div>
+      </section>
+    </aside>
+  </main>
+
+  <div id="settings-overlay" class="settings-overlay hidden" aria-hidden="true">
+    <div class="settings-backdrop" id="settings-backdrop"></div>
+    <div class="settings-modal" role="dialog" aria-modal="true" aria-labelledby="settings-modal-title">
+      <header class="settings-modal-header">
+        <h2 id="settings-modal-title">设置</h2>
+        <button type="button" id="btn-close-settings" class="ghost" aria-label="关闭设置">关闭</button>
+      </header>
+      <div class="settings-modal-body themed-scroll">
+        <section class="settings-card">
+          <h2>主题</h2>
+          <div class="preset-row">
+            <button type="button" class="ghost" data-preset="dark">暗色</button>
+            <button type="button" class="ghost" data-preset="light">浅色</button>
+          </div>
+          <p class="hint">点击色块选择颜色。强调色会同步用于按钮、链接与对话引号高亮。</p>
+          <div class="theme-color-grid">
+            <label class="theme-color-item" title="背景">
+              <input type="color" id="theme-color-bg" class="theme-color-input" value="#0f1117" />
+              <span class="theme-swatch" id="swatch-bg"></span>
+              <span class="theme-color-label">背景</span>
+            </label>
+            <label class="theme-color-item" title="面板">
+              <input type="color" id="theme-color-panel" class="theme-color-input" value="#1a1d27" />
+              <span class="theme-swatch" id="swatch-panel"></span>
+              <span class="theme-color-label">面板</span>
+            </label>
+            <label class="theme-color-item" title="文字">
+              <input type="color" id="theme-color-text" class="theme-color-input" value="#e8eaef" />
+              <span class="theme-swatch" id="swatch-text"></span>
+              <span class="theme-color-label">文字</span>
+            </label>
+            <label class="theme-color-item" title="强调色">
+              <input type="color" id="theme-color-accent" class="theme-color-input" value="#6c9eff" />
+              <span class="theme-swatch" id="swatch-accent"></span>
+              <span class="theme-color-label">强调色</span>
+            </label>
+          </div>
+          <p class="theme-dialogue-preview">
+            对话预览：<span class="msg-dialogue">「这是引号内的高亮文字」</span>
+          </p>
+          <div class="theme-glow-block">
+            <label class="checkbox-row">
+              <input type="checkbox" id="theme-glow-enabled" checked /> 强调色发光
+            </label>
+            <label class="theme-shift-row">
+              <span>发光强度</span>
+              <input type="range" id="theme-glow-intensity" min="0" max="100" step="5" value="65" />
+              <span class="theme-shift-val" id="theme-glow-intensity-val">65%</span>
+            </label>
+            <p class="theme-glow-preview">
+              标题预览：<span class="theme-glow-preview-sample">KRYPTOS</span>
+            </p>
+          </div>
+          <div class="theme-font-block">
+            <label class="field compact-field">
+              <span class="field-label">字体</span>
+              <select id="theme-font-family">
+                <option value="segoe">Segoe UI</option>
+                <option value="system">系统默认</option>
+                <option value="yahei">微软雅黑</option>
+                <option value="pingfang">苹方</option>
+                <option value="serif">衬线</option>
+                <option value="mono">等宽</option>
+                <option value="custom">本机 / 更多</option>
+              </select>
+            </label>
+            <div class="theme-font-custom-field hidden" id="theme-font-custom-field">
+              <div class="font-picker-actions">
+                <button type="button" id="btn-load-system-fonts" class="ghost">读取本机字体</button>
+                <input type="file" id="theme-font-file" accept=".woff2,.woff,.ttf,.otf,font/woff2,font/woff,font/ttf,font/otf" class="hidden" />
+                <button type="button" id="btn-upload-font" class="ghost">上传字体文件</button>
+                <span id="theme-font-upload-status" class="font-picker-status"></span>
+              </div>
+              <label class="field compact-field">
+                <span class="field-label">选择或搜索字体</span>
+                <input type="text" id="theme-font-custom" list="theme-font-datalist" placeholder="搜索或选择本机字体…" />
+                <datalist id="theme-font-datalist"></datalist>
+              </label>
+              <input type="hidden" id="theme-font-url" value="" />
+              <input type="hidden" id="theme-font-face-name" value="" />
+            </div>
+            <label class="theme-shift-row theme-font-size-row">
+              <span>字号</span>
+              <input type="range" id="theme-font-size" min="85" max="125" step="5" value="100" />
+              <span class="theme-shift-val" id="theme-font-size-val">100%</span>
+            </label>
+            <p id="theme-font-preview" class="theme-font-preview">预览：角色对话与界面文字将使用此字体。</p>
+          </div>
+          <p class="save-reminder">预览主题后需点击「保存主题」才会写入本机。</p>
+          <div class="row">
+            <button type="button" id="btn-save-theme">保存主题</button>
+            <button type="button" class="ghost" id="btn-reset-theme">恢复默认</button>
+          </div>
+        </section>
+
+        <section class="settings-card">
+          <h2>全局 API</h2>
+          <p class="hint">角色未单独配置时，将使用此处默认值。</p>
+          <label>Model <input id="global-model" /></label>
+          <label>API Base <input id="global-api-base" /></label>
+          <label>Max Tokens
+            <input id="global-max-tokens" type="number" min="256" max="32768" step="256" value="4096" />
+          </label>
+          <p class="hint">角色单次发言最大生成长度。回复经常被截断时可调高（如 4096～8192）。</p>
+          <label class="field compact-field">
+            <span class="field-label">角色回复篇幅</span>
+            <select id="global-reply-length">
+              <option value="short">简短（1～2句，推荐）</option>
+              <option value="normal">适中（2～4句）</option>
+              <option value="long">详细</option>
+            </select>
+          </label>
+          <p class="hint">控制 AI 角色每次发言长短，避免啰嗦和重复交代设定。</p>
+          <label>API Key <input id="global-api-key" type="password" placeholder="留空不修改" /></label>
+          <p class="save-reminder">修改 API 配置后需点击「保存 API」才会生效。</p>
+          <div class="row">
+            <button type="button" id="btn-save-global">保存 API</button>
+            <button type="button" class="ghost" id="btn-test-llm">测试连通</button>
+          </div>
+          <div id="test-result" class="test-result hidden"></div>
+        </section>
+      </div>
+    </div>
+  </div>
+
+  <script src="/static/sidebar-sections.js"></script>
+  <script src="/static/char-ui.js"></script>
+  <script src="/static/bubble-ui.js"></script>
+  <script src="/static/format-message.js"></script>
+  <script src="/static/world-book.js"></script>
+  <script src="/static/app.js"></script>
+  <script src="/static/settings.js"></script>
+</body>
+</html>

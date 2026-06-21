@@ -1,0 +1,31 @@
+# Secrets
+.env
+.env.*
+!.env.example
+
+# Local runtime data: sessions, roster, API keys, uploads — never commit
+data/*
+!data/.gitkeep
+data/sessions.db
+data/llm_config.json
+data/assets/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+.venv/
+venv/
+dist/
+build/
+
+# OS / editor
+.DS_Store
+Thumbs.db
+*.swp
+.idea/
+.vscode/
+
+# Local backups (optional script output)
+data-backup-*/
