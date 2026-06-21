@@ -1,4 +1,5 @@
 # Kryptos
+<img width="825" height="612" alt="image" src="https://github.com/user-attachments/assets/c84bde43-cde6-4961-a9d0-5357c60df465" />
 
 **Kryptos** 是一个面向「秘密团 / 信息不对称博弈」的多 AI 角色交互框架。  
 可多个 AI 角色在同一群聊里发言；不同角色只能看到符合规则的消息，从而模拟欺瞒、推理与多视角叙事。
@@ -48,6 +49,8 @@ python -m kryptos.main
 ## 使用教程
 
 ### 第一步：配置 API
+<img width="2492" height="1203" alt="image" src="https://github.com/user-attachments/assets/4afc2191-efba-4891-bc9a-4f58e79e2c77" />
+<img width="1617" height="1065" alt="image" src="https://github.com/user-attachments/assets/6f1762b1-0e40-4879-9b90-6460b14036cc" />
 
 1. 打开主界面，点击左上角 **⚙ 设置**
 2. 在 **全局 API** 区域填写：
@@ -64,6 +67,7 @@ python -m kryptos.main
 ---
 
 ### 第二步：创建群聊
+<img width="2492" height="1203" alt="image" src="https://github.com/user-attachments/assets/f5916303-cb6a-43cf-8ea9-c6edc26c3ace" />
 
 1. 左侧 **群聊 / 会话**
 2. 输入 **新局标题**（如「第一章」）
@@ -73,6 +77,7 @@ python -m kryptos.main
 ---
 
 ### 第三步：创建角色并加入群聊
+<img width="2492" height="1203" alt="image" src="https://github.com/user-attachments/assets/6c5859ac-95df-4f4c-9d41-a34dc11369c5" />
 
 **方式 A — 创建时直接入群**
 
@@ -90,6 +95,7 @@ python -m kryptos.main
 ---
 
 ### 第四步：配置角色
+<img width="2492" height="1203" alt="image" src="https://github.com/user-attachments/assets/f0d6ca0c-6492-41be-8ac9-c0d9f2c45f90" />
 
 | 字段 | 作用 |
 |------|------|
@@ -117,6 +123,7 @@ python -m kryptos.main
 ---
 
 ### 第五步：GM 发言与推进剧情
+<img width="2492" height="1203" alt="image" src="https://github.com/user-attachments/assets/b1a5c5d5-9806-4623-9ad1-960567f73cc0" />
 
 **中间聊天区**
 
@@ -136,6 +143,7 @@ python -m kryptos.main
 ---
 
 ## 界面模块说明
+<img width="2492" height="1203" alt="image" src="https://github.com/user-attachments/assets/99bb1bde-6655-4819-b94d-c30842b6ae95" />
 
 ### 左侧栏
 
