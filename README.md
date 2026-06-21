@@ -1,5 +1,6 @@
 # Kryptos
-<img width="825" height="612" alt="image" src="https://github.com/user-attachments/assets/c84bde43-cde6-4961-a9d0-5357c60df465" />
+
+<img width="2492" height="1203" alt="image" src="https://github.com/user-attachments/assets/7e239ecc-5c24-4025-bb82-f5abd16c3a14" />
 
 **Kryptos** 是一个面向「秘密团 / 信息不对称博弈」的多 AI 角色交互框架。  
 可多个 AI 角色在同一群聊里发言；不同角色只能看到符合规则的消息，从而模拟欺瞒、推理与多视角叙事。
